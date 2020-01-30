@@ -24,8 +24,6 @@ import java.net.InetAddress;
 import java.net.Socket;
 import java.lang.Runnable;
 import java.io.*;
-import java.net.UnknownHostException;
-import java.net.http.HttpResponse;
 import java.nio.file.Files;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -122,11 +120,11 @@ private void writeHTTPHeader(OutputStream os, String contentType) throws Excepti
 **/
 private void writeContent(OutputStream os) throws Exception
 {
-   File file = new File("Test.html");
+
    String oldFile = "";
    String newFile;
 
-   BufferedReader reader = new BufferedReader(new FileReader("Test.html"));
+   BufferedReader reader = new BufferedReader(new FileReader("TestBase.html"));
 
    String line = reader.readLine();
 
@@ -141,7 +139,7 @@ private void writeContent(OutputStream os) throws Exception
 
    newFile = oldFile.replaceAll("\\{\\{cs371date}}", dateFormat.format(date));
 
-   //newFile = newFile.replaceAll("\\{\\{cs371server}}", "");
+   newFile = newFile.replaceAll("\\{\\{cs371server}}", System.getProperty("user.name") + " on " + InetAddress.getLocalHost());
 
    FileWriter writer = new FileWriter("Test.html");
 
@@ -149,6 +147,8 @@ private void writeContent(OutputStream os) throws Exception
 
    reader.close();
    writer.close();
+
+   File file = new File("Test.html");
 
    try {
    	Files.copy(file.toPath(), os);
