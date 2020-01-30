@@ -117,8 +117,13 @@ private void writeHTTPHeader(OutputStream os, String contentType) throws Excepti
 **/
 private void writeContent(OutputStream os) throws Exception
 {
-   File file = new File("test.html");
-   Files.copy(file.toPath(), os);
+   File file = new File("Test.html");
+   try {
+   	Files.copy(file.toPath(), os);
+   }
+   catch (Exception e) {
+   	os.write("<html><head>404 Not Found</head></html>".getBytes());
+   }
    //os.write("<html><head></head><body>\n".getBytes());
    //os.write("<h3>My web server works!</h3>\n".getBytes());
    //os.write("</body></html>\n".getBytes());
