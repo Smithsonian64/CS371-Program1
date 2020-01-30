@@ -23,7 +23,10 @@
 import java.net.Socket;
 import java.lang.Runnable;
 import java.io.*;
+import java.net.http.HttpResponse;
 import java.nio.file.Files;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.text.DateFormat;
 import java.util.TimeZone;
@@ -118,11 +121,39 @@ private void writeHTTPHeader(OutputStream os, String contentType) throws Excepti
 private void writeContent(OutputStream os) throws Exception
 {
    File file = new File("Test.html");
+   String oldFile = "";
+   String newFile;
+
+   BufferedReader reader = new BufferedReader(new FileReader("Test.html"));
+
+   String line = reader.readLine();
+
+   while (line != null)
+   {
+      oldFile = oldFile + line + System.lineSeparator();
+      line = reader.readLine();
+   }
+
+   Date date = Calendar.getInstance().getTime();
+   DateFormat dateFormat = new SimpleDateFormat("yyyy-mm-dd hh:mm:ss");
+
+   newFile = oldFile.replaceAll("\\{\\{cs371date}}", dateFormat.format(date));
+   newFile = newFile.replaceAll("\\{\\{cs371server}}", System.getProperty("user.name"));
+
+   FileWriter writer = new FileWriter("Test.html");
+
+   writer.write(newFile);
+
+   reader.close();
+   writer.close();
+
    try {
    	Files.copy(file.toPath(), os);
+
    }
    catch (Exception e) {
    	os.write("<html><head>404 Not Found</head></html>".getBytes());
+
    }
    //os.write("<html><head></head><body>\n".getBytes());
    //os.write("<h3>My web server works!</h3>\n".getBytes());
