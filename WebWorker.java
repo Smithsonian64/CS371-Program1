@@ -20,9 +20,11 @@
 *
 **/
 
+import java.net.InetAddress;
 import java.net.Socket;
 import java.lang.Runnable;
 import java.io.*;
+import java.net.UnknownHostException;
 import java.net.http.HttpResponse;
 import java.nio.file.Files;
 import java.text.SimpleDateFormat;
@@ -138,7 +140,8 @@ private void writeContent(OutputStream os) throws Exception
    DateFormat dateFormat = new SimpleDateFormat("yyyy-mm-dd hh:mm:ss");
 
    newFile = oldFile.replaceAll("\\{\\{cs371date}}", dateFormat.format(date));
-   newFile = newFile.replaceAll("\\{\\{cs371server}}", System.getProperty("user.name"));
+
+   //newFile = newFile.replaceAll("\\{\\{cs371server}}", "");
 
    FileWriter writer = new FileWriter("Test.html");
 
