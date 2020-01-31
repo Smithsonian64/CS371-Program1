@@ -14,19 +14,6 @@
 * 
 **/
 
-/*
-1. Estimate the time it will take you to do the assignment, to within a quarter-hour: 3 hours
-
-        2. Estimate the time it took you to complete the assignment, broken down as:
-
-        Thought/Design: 30 mins
-        Programming: 3 hours
-        Debugging: 2 hours
-        TOTAL: 5 hours 30 mins
-
-        3. To within what percent accuracy was your original estimate: 55%
-*/
-
 import java.net.*;
 
 public class WebServer
