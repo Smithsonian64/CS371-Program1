@@ -20,10 +20,13 @@
 *
 **/
 
+import java.net.HttpURLConnection;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.lang.Runnable;
 import java.io.*;
+import java.net.URL;
+import java.net.http.HttpResponse;
 import java.nio.file.Files;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -35,6 +38,7 @@ public class WebWorker implements Runnable
 {
 
 private Socket socket;
+private String url;
 
 /**
 * Constructor: must have a valid open socket
@@ -71,8 +75,8 @@ public void run()
 /**
 * Read the HTTP request header.
 **/
-private void readHTTPRequest(InputStream is)
-{
+private void readHTTPRequest(InputStream is) {
+
    String line;
    BufferedReader r = new BufferedReader(new InputStreamReader(is));
    while (true) {
@@ -103,7 +107,7 @@ private void writeHTTPHeader(OutputStream os, String contentType) throws Excepti
    os.write("Date: ".getBytes());
    os.write((df.format(d)).getBytes());
    os.write("\n".getBytes());
-   os.write("Server: Jon's very own server\n".getBytes());
+   os.write("Server: Michael's very own server\n".getBytes());
    //os.write("Last-Modified: Wed, 08 Jan 2003 23:11:55 GMT\n".getBytes());
    //os.write("Content-Length: 438\n".getBytes()); 
    os.write("Connection: close\n".getBytes());
@@ -158,9 +162,6 @@ private void writeContent(OutputStream os) throws Exception
    	os.write("<html><head>404 Not Found</head></html>".getBytes());
 
    }
-   //os.write("<html><head></head><body>\n".getBytes());
-   //os.write("<h3>My web server works!</h3>\n".getBytes());
-   //os.write("</body></html>\n".getBytes());
 
 }
 
