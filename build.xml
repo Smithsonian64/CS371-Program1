@@ -1,4 +1,4 @@
-<project name="CS371-Program1" default="run">
+<project name="CS371-Program1">
 
     <target name="clean">
         <delete>
@@ -9,11 +9,5 @@
     <target name="compile" depends="clean">
         <javac srcdir="." includeantruntime="false" debug="true" />
     </target>
-
-    <target name="run" depends="compile">
-        <java classname="WebServer" fork="true" />
-    </target>
-
-
 
 </project>
