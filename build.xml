@@ -1,6 +1,12 @@
 <project name="CS371-Program1" default="run">
 
-    <target name="compile">
+    <target name="clean">
+        <delete>
+            <fileset dir="." includes="*.class"/>
+        </delete>
+    </target>
+
+    <target name="compile" depends="clean">
         <javac srcdir="." includeantruntime="false" debug="true" />
     </target>
 
@@ -8,10 +14,6 @@
         <java classname="WebServer" fork="true" />
     </target>
 
-    <target name="clean">
-        <delete>
-            <fileset dir="." includes="*.class"/>
-        </delete>
-    </target>
+
 
 </project>
