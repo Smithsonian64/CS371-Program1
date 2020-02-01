@@ -16,17 +16,17 @@
 * a row, invoking three methods in this class: it reads the incoming HTTP
 * request; it writes out an HTTP header to begin its response, and then it
 * writes out some HTML content for the response content. HTTP requests and
-* responses are just lines of text (in a very particular format). 
+* responses are just lines of text (in a very particular format).
+ *
+ * Modified by Michael Smith
+ * January 2020
 *
 **/
 
-import java.net.HttpURLConnection;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.lang.Runnable;
 import java.io.*;
-import java.net.URL;
-import java.net.http.HttpResponse;
 import java.nio.file.Files;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -38,7 +38,8 @@ public class WebWorker implements Runnable
 {
 
 private Socket socket;
-private String url;
+private String request;
+File file;
 
 /**
 * Constructor: must have a valid open socket
@@ -79,12 +80,23 @@ private void readHTTPRequest(InputStream is) {
 
    String line;
    BufferedReader r = new BufferedReader(new InputStreamReader(is));
+   try{
+      request = r.readLine();
+      System.err.println("Request Line: ("+request+")");
+      Thread.sleep(2);
+   }
+   catch (Exception e) {
+      System.err.println("Request error: "+e);
+
+   }
    while (true) {
       try {
          while (!r.ready()) Thread.sleep(1);
          line = r.readLine();
          System.err.println("Request line: ("+line+")");
-         if (line.length()==0) break;
+         if (line.length()==0) {
+            break;
+         }
       } catch (Exception e) {
          System.err.println("Request error: "+e);
          break;
@@ -95,21 +107,22 @@ private void readHTTPRequest(InputStream is) {
 
 /**
 * Write the HTTP header lines to the client network connection.
+ * If request points to nonexistent html file or directory a 404 status code is written to the header
 * @param os is the OutputStream object to write to
 * @param contentType is the string MIME content type (e.g. "text/html")
 **/
 private void writeHTTPHeader(OutputStream os, String contentType) throws Exception
 {
+   file = new File(parseRequest(request));
    Date d = new Date();
    DateFormat df = DateFormat.getDateTimeInstance();
    df.setTimeZone(TimeZone.getTimeZone("GMT"));
-   os.write("HTTP/1.1 200 OK\n".getBytes());
+   if(file.isFile() || file.toString().equals("")) os.write("HTTP/1.1 200 OK\n".getBytes());
+   else os.write("HTTP/1.1 404 Not Found\n".getBytes());
    os.write("Date: ".getBytes());
    os.write((df.format(d)).getBytes());
    os.write("\n".getBytes());
    os.write("Server: Michael's very own server\n".getBytes());
-   //os.write("Last-Modified: Wed, 08 Jan 2003 23:11:55 GMT\n".getBytes());
-   //os.write("Content-Length: 438\n".getBytes()); 
    os.write("Connection: close\n".getBytes());
    os.write("Content-Type: ".getBytes());
    os.write(contentType.getBytes());
@@ -120,10 +133,15 @@ private void writeHTTPHeader(OutputStream os, String contentType) throws Excepti
 /**
 * Write the data content to the client network connection. This MUST
 * be done after the HTTP header has been written out.
+ * This method also replaces the special tags {{cs371date}} and {{cs371server}} with their
+ * respective information on the response html file. If the request points to a non existent file or directory then
+ * a 404 page is served.
 * @param os is the OutputStream object to write to
 **/
 private void writeContent(OutputStream os) throws Exception
 {
+
+   parseRequest(request);
 
    String oldFile = "";
    String newFile;
@@ -152,17 +170,49 @@ private void writeContent(OutputStream os) throws Exception
    reader.close();
    writer.close();
 
-   File file = new File("Test.html");
+   File notFound = new File("notFound.html");
 
-   try {
-   	Files.copy(file.toPath(), os);
-
-   }
-   catch (Exception e) {
-   	os.write("<html><head>404 Not Found</head></html>".getBytes());
-
+   if(file.toString().equals("")) {
+      Files.copy(new File("Test.html").toPath(), os);
+      return;
    }
 
+   if(file.isFile()) {
+      try {
+         Files.copy(file.toPath(), os);
+         return;
+      }
+      catch (Exception e) {
+         os.write("<html><head>Bad request</head></html>".getBytes());
+         System.err.println(e);
+         return;
+      }
+   } else {
+      try {
+         Files.copy(notFound.toPath(), os);
+         return;
+      }
+      catch (Exception e) {
+         Files.copy(notFound.toPath(), os);
+         return;
+      }
+   }
+
+
+
+}
+
+   /**
+    * This method parsed the request file name from the HTTP GET request in order to server the write html file
+    * @param request HTTP GET request
+    * @return file name String
+    */
+   private static String parseRequest(String request) {
+
+   String parsedRequest = request.substring(request.indexOf('/') + 1);
+   parsedRequest = parsedRequest.substring(0, parsedRequest.indexOf(' '));
+
+   return parsedRequest;
 }
 
 } // end class
